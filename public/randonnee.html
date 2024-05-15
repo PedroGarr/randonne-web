@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Détails de la randonnée</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Randonner</a>
+    <a href="/contribuer">Contribuer</a>
+  </nav>
+  <div id="randonnee-details"></div>
+
+  <script>
+    const id = window.location.pathname.split('/')[2];
+    fetch(`/api/randonnee/${id}`)
+      .then(response => response.json())
+      .then(data => {
+        const details = document.getElementById('randonnee-details');
+        details.innerHTML = `
+          <h1>${data.nom}</h1>
+          <p>${data.description}</p>
+          <p>Score de popularité: ${data.popularite}</p>
+          <p>Adresse: ${data.adresse}</p>
+          ${data.photo ? `<img src="${data.photo}" alt="${data.nom}">` : ''}
+        `;
+      });
+  </script>
+</body>
+</html>

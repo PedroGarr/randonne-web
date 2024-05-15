@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Contribuer</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Randonner</a>
+    <a href="/contribuer">Contribuer</a>
+  </nav>
+  <h1>Contribuer une nouvelle randonnée</h1>
+  <form action="/contribuer" method="post">
+    <label for="nom">Nom de la randonnée:</label>
+    <input type="text" id="nom" name="nom" required><br>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea><br>
+    <label for="adresse">Adresse du point de départ:</label>
+    <input type="text" id="adresse" name="adresse" required><br>
+    <label for="popularite">Score de popularité:</label>
+    <input type="number" id="popularite" name="popularite" required><br>
+    <label for="photo">Photo (URL):</label>
+    <input type="text" id="photo" name="photo"><br>
+    <button type="submit">Soumettre</button>
+  </form>
+</body>
+</html>

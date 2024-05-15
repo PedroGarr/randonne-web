@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randonner</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Randonner</a>
+    <a href="/contribuer">Contribuer</a>
+  </nav>
+  <h1>Liste des randonnées</h1>
+  <ul id="randonnees"></ul>
+
+  <script>
+    fetch('/api/randonnees')
+      .then(response => response.json())
+      .then(data => {
+        const ul = document.getElementById('randonnees');
+        data.forEach(rando => {
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="/randonnee/${rando.id}">${rando.nom}</a> - ${rando.adresse}`;
+          ul.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>
