@@ -9,21 +9,57 @@
   <nav>
     <a href="/">Randonner</a>
     <a href="/contribuer">Contribuer</a>
+    <a href="/connexion" id="connexion-link">Connexion</a>
+    <a href="/deconnexion" id="deconnexion-link" style="display: none;">Déconnexion</a>
   </nav>
   <h1>Liste des randonnées</h1>
-  <ul id="randonnees"></ul>
+  <button id="sort-nom">Trier par nom</button>
+  <button id="sort-popularite">Trier par popularité</button>
+  <ul id="randonnees-list"></ul>
 
   <script>
-    fetch('/api/randonnees')
-      .then(response => response.json())
-      .then(data => {
-        const ul = document.getElementById('randonnees');
-        data.forEach(rando => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href="/randonnee/${rando.id}">${rando.nom}</a> - ${rando.adresse}`;
-          ul.appendChild(li);
+    document.addEventListener('DOMContentLoaded', function() {
+      const randonneesList = document.getElementById('randonnees-list');
+      const sortNomButton = document.getElementById('sort-nom');
+      const sortPopulariteButton = document.getElementById('sort-popularite');
+      const connexionLink = document.getElementById('connexion-link');
+      const deconnexionLink = document.getElementById('deconnexion-link');
+
+      function loadRandonnees(sortBy = 'nom') {
+        fetch(`/api/randonnees?sort=${sortBy}`)
+          .then(response => response.json())
+          .then(randonnees => {
+            randonneesList.innerHTML = '';
+            randonnees.forEach(randonnee => {
+              const li = document.createElement('li');
+              li.innerHTML = `
+                <a href="/randonnee/${randonnee.id}">${randonnee.nom}</a>
+                <p>${randonnee.adresse}</p>
+                <div>${'★'.repeat(randonnee.popularite) + '☆'.repeat(5 - randonnee.popularite)}</div>
+              `;
+              randonneesList.appendChild(li);
+            });
+          });
+      }
+
+      sortNomButton.addEventListener('click', () => loadRandonnees('nom'));
+      sortPopulariteButton.addEventListener('click', () => loadRandonnees('popularite'));
+
+      loadRandonnees();
+
+      // Vérifier l'état de la session pour afficher le lien approprié
+      fetch('/api/session')
+        .then(response => response.json())
+        .then(session => {
+          if (session.userId) {
+            connexionLink.style.display = 'none';
+            deconnexionLink.style.display = 'inline';
+          } else {
+            connexionLink.style.display = 'inline';
+            deconnexionLink.style.display = 'none';
+          }
         });
-      });
+    });
   </script>
 </body>
 </html>

@@ -9,23 +9,96 @@
   <nav>
     <a href="/">Randonner</a>
     <a href="/contribuer">Contribuer</a>
+    <span id="user-info"></span>
   </nav>
-  <div id="randonnee-details"></div>
+  <h1 id="nom-randonnee"></h1>
+  <p id="description-randonnee"></p>
+  <p id="adresse-randonnee"></p>
+  <img id="photo-randonnee" src="" alt="Photo de la randonnée">
+  <div id="popularite-randonnee"></div>
+  <form id="note-form">
+    <label for="note">Votre note (1 à 5) :</label>
+    <select id="note" name="note">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <button type="submit">Soumettre</button>
+  </form>
+  <div id="error-message" style="color: red;"></div>
 
   <script>
-    const id = window.location.pathname.split('/')[2];
-    fetch(`/api/randonnee/${id}`)
+
+    fetch('/api/session')
       .then(response => response.json())
       .then(data => {
-        const details = document.getElementById('randonnee-details');
-        details.innerHTML = `
-          <h1>${data.nom}</h1>
-          <p>${data.description}</p>
-          <p>Score de popularité: ${data.popularite}</p>
-          <p>Adresse: ${data.adresse}</p>
-          ${data.photo ? `<img src="${data.photo}" alt="${data.nom}">` : ''}
-        `;
+        const userInfo = document.getElementById('user-info');
+        if (data.userIdentifiant) {
+          userInfo.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
+        } else {
+          userInfo.innerHTML = '<a href="/connexion">Connexion</a>';
+        }
       });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const randonneeId = window.location.pathname.split('/').pop();
+      const nomRandonnee = document.getElementById('nom-randonnee');
+      const descriptionRandonnee = document.getElementById('description-randonnee');
+      const adresseRandonnee = document.getElementById('adresse-randonnee');
+      const photoRandonnee = document.getElementById('photo-randonnee');
+      const populariteRandonnee = document.getElementById('popularite-randonnee');
+      const errorMessage = document.getElementById('error-message');
+      const noteForm = document.getElementById('note-form');
+
+      // Fetch randonnée details
+      fetch(`/api/randonnees/${randonneeId}`)
+        .then(response => response.json())
+        .then(randonnee => {
+          nomRandonnee.textContent = randonnee.nom;
+          descriptionRandonnee.textContent = randonnee.description;
+          adresseRandonnee.textContent = randonnee.adresse;
+          photoRandonnee.src = randonnee.photo;
+          updatePopularite(randonnee.popularite);
+        });
+
+      // Submit note
+      noteForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const note = document.getElementById('note').value;
+
+        fetch(`/api/randonnees/${randonneeId}/note`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ note })
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            updatePopularite(result.moyenne);
+            errorMessage.textContent = '';
+          } else {
+            errorMessage.textContent = result.error;
+          }
+        })
+        .catch(() => {
+          errorMessage.textContent = 'Erreur de connexion, veuillez réessayer.';
+        });
+      });
+
+      function updatePopularite(moyenne) {
+        populariteRandonnee.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement('span');
+          star.textContent = i <= moyenne ? '★' : '☆';
+          populariteRandonnee.appendChild(star);
+        }
+      }
+    });
   </script>
 </body>
 </html>
