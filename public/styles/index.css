@@ -1,0 +1,133 @@
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('backback.jpg') no-repeat center center / cover fixed; 
+  }
+  
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-colot: black;
+    border-bottom: 2px solid rgba(109, 105, 118, 0.7);
+  }
+  
+  .nav-items {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .nav-link, .nav-button {
+    text-decoration: none;
+    color: #000;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.75rem;
+  }
+
+  .nav-link:hover{
+    opacity: 0.6;
+  }
+  
+  .nav-button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #072040;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-button:hover{
+    opacity: 0.6;
+  }
+
+  .session-status {
+    font-size: 1.25rem;
+    color: #F2887E;
+  }
+  
+  .header {
+    
+    text-align: center;
+    padding: 2rem 0;
+    
+  }
+  
+  .header-title {
+    font-family: "Helvetica", Arial, sans-serif;
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .main-content {
+    padding: 2rem;
+  }
+  
+  .sort-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .sort-label {
+    font-size: 1.5rem;
+    color: #000;
+  }
+  
+  .sort-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #072040;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .randonnees-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .randonnee-item {
+    list-style: none;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #706673;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .randonnee-link {
+    font-size: 1.5rem;
+    color: #000;
+    text-decoration: none;
+  }
+  
+  .randonnee-address, .randonnee-rating {
+    font-size: 1rem;
+    color: #000;
+  }
+
+  .randonnee-rating {
+    font-size: 2rem;
+    color: #FFD700;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f5f5f5;
+  }
+  
+  .divider {
+    width: 100%;
+    height: 1px;
+    object-fit: cover;
+  }
+  

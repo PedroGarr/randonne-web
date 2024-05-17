@@ -16,7 +16,6 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-// Middleware pour vérifier si l'utilisateur est connecté
 function checkAuth(req, res, next) {
   if (req.session.userId) {
     next();
@@ -25,15 +24,20 @@ function checkAuth(req, res, next) {
   }
 }
 
-// Page d'accueil / Liste des randonnées
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API pour obtenir les randonnées avec tri
+
 app.get('/api/randonnees', (req, res) => {
   const sortBy = req.query.sort || 'nom';
-  db.all(`SELECT id, nom, adresse, popularite FROM randonnees ORDER BY ${sortBy}`, (err, rows) => {
+  let orderByClause = 'ORDER BY nom ASC'; // Default sorting
+
+  if (sortBy === 'popularite') {
+    orderByClause = 'ORDER BY popularite DESC'; // Sorting by popularity in descending order
+  }
+
+  db.all(`SELECT id, nom, adresse, popularite FROM randonnees ${orderByClause}`, (err, rows) => {
     if (err) {
       console.error('Erreur de base de données:', err);
       res.status(500).send('Erreur de base de données');
@@ -43,12 +47,11 @@ app.get('/api/randonnees', (req, res) => {
   });
 });
 
-// Page d'une randonnée
+
 app.get('/randonnee/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'randonnee.html'));
 });
 
-// API pour obtenir les détails d'une randonnée
 app.get('/api/randonnees/:id', (req, res) => {
   const id = req.params.id;
   db.get('SELECT * FROM randonnees WHERE id = ?', [id], (err, row) => {
@@ -61,16 +64,14 @@ app.get('/api/randonnees/:id', (req, res) => {
   });
 });
 
-// Vérification de la session utilisateur pour la page de contribution
 app.get('/contribuer', checkAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'contribuer.html'));
 });
 
-// Gestion de la soumission du formulaire de contribution
 app.post('/contribuer', checkAuth, (req, res) => {
   const { nom, description, adresse, popularite, photo } = req.body;
-  db.run('INSERT INTO randonnees (nom, description, adresse, popularite, photo) VALUES (?, ?, ?, ?, ?)', 
-    [nom, description, adresse, popularite, photo], function(err) {
+  db.run('INSERT INTO randonnees (nom, description, adresse, popularite, initial_popularite, photo) VALUES (?, ?, ?, ?, ?, ?)', 
+    [nom, description, adresse, popularite, popularite, photo], function(err) {
       if (err) {
         console.error('Erreur de base de données:', err);
         res.status(500).send('Erreur de base de données');
@@ -80,12 +81,10 @@ app.post('/contribuer', checkAuth, (req, res) => {
     });
 });
 
-// Page de connexion
 app.get('/connexion', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'connexion.html'));
 });
 
-// Route pour la déconnexion
 app.get('/deconnexion', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -97,12 +96,10 @@ app.get('/deconnexion', (req, res) => {
   });
 });
 
-// Gestion de la connexion et de l'inscription
 app.post('/connexion', (req, res) => {
   const { identifiant, mot_de_passe, nouveau_utilisateur } = req.body;
 
   if (nouveau_utilisateur) {
-    // Vérifier si l'utilisateur existe déjà
     db.get('SELECT * FROM utilisateurs WHERE identifiant = ?', [identifiant], (err, row) => {
       if (err) {
         console.error('Erreur de base de données:', err);
@@ -112,7 +109,6 @@ app.post('/connexion', (req, res) => {
       if (row) {
         res.json({ error: 'Identifiant déjà utilisé.' });
       } else {
-        // Création d'un nouvel utilisateur
         bcrypt.hash(mot_de_passe, 10, (err, hash) => {
           if (err) {
             console.error('Erreur de hachage du mot de passe:', err);
@@ -133,7 +129,6 @@ app.post('/connexion', (req, res) => {
       }
     });
   } else {
-    // Connexion d'un utilisateur existant
     db.get('SELECT * FROM utilisateurs WHERE identifiant = ?', [identifiant], (err, row) => {
       if (err) {
         console.error('Erreur de base de données:', err);
@@ -162,7 +157,7 @@ app.post('/connexion', (req, res) => {
   }
 });
 
-// Endpoint pour vérifier l'état de la session utilisateur
+
 app.get('/api/session', (req, res) => {
   if (req.session.userId) {
     res.json({ userId: req.session.userId, userIdentifiant: req.session.userIdentifiant });
@@ -171,13 +166,11 @@ app.get('/api/session', (req, res) => {
   }
 });
 
-// API pour soumettre une note pour une randonnée
 app.post('/api/randonnees/:id/note', checkAuth, (req, res) => {
   const randonneeId = req.params.id;
   const utilisateurId = req.session.userId;
   const note = req.body.note;
 
-  // Vérifier si l'utilisateur a déjà noté cette randonnée
   db.get('SELECT * FROM notes WHERE randonnee_id = ? AND utilisateur_id = ?', [randonneeId, utilisateurId], (err, row) => {
     if (err) {
       console.error('Erreur de base de données:', err);
@@ -186,10 +179,8 @@ app.post('/api/randonnees/:id/note', checkAuth, (req, res) => {
     }
 
     if (row) {
-      // L'utilisateur a déjà noté cette randonnée
       res.json({ error: 'Vous avez déjà noté cette randonnée.' });
     } else {
-      // Ajouter la note à la base de données
       db.run('INSERT INTO notes (randonnee_id, utilisateur_id, note) VALUES (?, ?, ?)', [randonneeId, utilisateurId, note], function(err) {
         if (err) {
           console.error('Erreur de base de données:', err);
@@ -197,23 +188,30 @@ app.post('/api/randonnees/:id/note', checkAuth, (req, res) => {
           return;
         }
 
-        // Calculer la nouvelle moyenne des notes
-        db.get('SELECT AVG(note) AS moyenne FROM notes WHERE randonnee_id = ?', [randonneeId], (err, result) => {
+        db.get('SELECT initial_popularite FROM randonnees WHERE id = ?', [randonneeId], (err, randonnee) => {
           if (err) {
             console.error('Erreur de base de données:', err);
             res.status(500).json({ error: 'Erreur de base de données' });
             return;
           }
 
-          const nouvelleMoyenne = result.moyenne;
-          db.run('UPDATE randonnees SET popularite = ? WHERE id = ?', [nouvelleMoyenne, randonneeId], function(err) {
+          db.get('SELECT AVG(note) AS moyenne FROM notes WHERE randonnee_id = ?', [randonneeId], (err, result) => {
             if (err) {
               console.error('Erreur de base de données:', err);
               res.status(500).json({ error: 'Erreur de base de données' });
               return;
             }
 
-            res.json({ success: true, moyenne: nouvelleMoyenne });
+            const nouvelleMoyenne = (result.moyenne + randonnee.initial_popularite) / 2;
+            db.run('UPDATE randonnees SET popularite = ? WHERE id = ?', [nouvelleMoyenne, randonneeId], function(err) {
+              if (err) {
+                console.error('Erreur de base de données:', err);
+                res.status(500).json({ error: 'Erreur de base de données' });
+                return;
+              }
+
+              res.json({ success: true, moyenne: nouvelleMoyenne });
+            });
           });
         });
       });

@@ -3,45 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <title>Détails de la randonnée</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/rando.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Randonner</a>
-    <a href="/contribuer">Contribuer</a>
-    <span id="user-info"></span>
+
+  <nav class="navigation">
+    <div class="nav-items">
+      <a href="/" class="nav-link">Randonner</a>
+      <a href="/contribuer" class="nav-link">Contribuer</a>
+      <button class="nav-button" onclick="location.href='/connexion'" id="connexion-link">Login</button>
+      <button class="nav-button" onclick="location.href='/deconnexion'" id="deconnexion-link" style="display: none;">Logout</button>
+    </div>
+    <div id="session-status" class="session-status">Not Connected</div>
   </nav>
-  <h1 id="nom-randonnee"></h1>
-  <p id="description-randonnee"></p>
-  <p id="adresse-randonnee"></p>
-  <img id="photo-randonnee" src="" alt="Photo de la randonnée">
-  <div id="popularite-randonnee"></div>
-  <form id="note-form">
-    <label for="note">Votre note (1 à 5) :</label>
-    <select id="note" name="note">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
-    <button type="submit">Soumettre</button>
-  </form>
-  <div id="error-message" style="color: red;"></div>
+
+  <main class="main-content">
+    <section class="randonnee-details">
+      <div class="randonnee-info">
+        <h1 id="nom-randonnee" class="randonnee-title"></h1>
+        <p id="adresse-randonnee" class="randonnee-address"></p>
+        <p id="description-randonnee" class="randonnee-description"></p>
+        
+        <form id="note-form" class="note-form">
+          <label for="note" class="note-label">Donner votre note :</label>
+          <div class="rating">
+            <input type="hidden" id="note" name="note" required>
+            <span class="star" data-value="1">☆</span>
+            <span class="star" data-value="2">☆</span>
+            <span class="star" data-value="3">☆</span>
+            <span class="star" data-value="4">☆</span>
+            <span class="star" data-value="5">☆</span>
+          </div>
+          <button type="submit" class="note-button">Soumettre</button>
+        </form>
+
+        <div id="error-message" class="error-message"></div>
+      </div>
+      <div class="randonnee-image">
+        <img id="photo-randonnee" src="" alt="Photo de la randonnée" class="randonnee-photo">
+        <div id="popularite-randonnee" class="randonnee-popularite"></div>
+      </div>
+    </section>
+  </main>
+
 
   <script>
-
-    fetch('/api/session')
-      .then(response => response.json())
-      .then(data => {
-        const userInfo = document.getElementById('user-info');
-        if (data.userIdentifiant) {
-          userInfo.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
-        } else {
-          userInfo.innerHTML = '<a href="/connexion">Connexion</a>';
-        }
-      });
-
     document.addEventListener('DOMContentLoaded', function() {
       const randonneeId = window.location.pathname.split('/').pop();
       const nomRandonnee = document.getElementById('nom-randonnee');
@@ -51,8 +57,9 @@
       const populariteRandonnee = document.getElementById('popularite-randonnee');
       const errorMessage = document.getElementById('error-message');
       const noteForm = document.getElementById('note-form');
+      const stars = document.querySelectorAll('.star');
+      const noteInput = document.getElementById('note');
 
-      // Fetch randonnée details
       fetch(`/api/randonnees/${randonneeId}`)
         .then(response => response.json())
         .then(randonnee => {
@@ -63,11 +70,19 @@
           updatePopularite(randonnee.popularite);
         });
 
-      // Submit note
+      stars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = this.getAttribute('data-value');
+          noteInput.value = value;
+          stars.forEach(s => {
+            s.textContent = s.getAttribute('data-value') <= value ? '★' : '☆';
+          });
+        });
+      });
+
       noteForm.addEventListener('submit', function(event) {
         event.preventDefault();
-
-        const note = document.getElementById('note').value;
+        const note = noteInput.value;
 
         fetch(`/api/randonnees/${randonneeId}/note`, {
           method: 'POST',
@@ -98,6 +113,24 @@
           populariteRandonnee.appendChild(star);
         }
       }
+
+      fetch('/api/session')
+        .then(response => response.json())
+        .then(data => {
+          const sessionStatus = document.getElementById('session-status');
+          const connexionLink = document.getElementById('connexion-link');
+          const deconnexionLink = document.getElementById('deconnexion-link');
+          
+          if (data.userIdentifiant) {
+            connexionLink.style.display = 'none';
+            deconnexionLink.style.display = 'inline';
+            sessionStatus.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
+          } else {
+            connexionLink.style.display = 'inline';
+            deconnexionLink.style.display = 'none';
+            sessionStatus.innerHTML = 'Not Connected';
+          }
+        });
     });
   </script>
 </body>

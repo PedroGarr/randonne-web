@@ -1,0 +1,124 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url('backback.jpg') no-repeat center center / cover fixed; /* Corrected line */
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-colot: black;
+  border-bottom: 2px solid rgba(109, 105, 118, 0.7);
+}
+
+.nav-items {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link, .nav-button {
+  text-decoration: none;
+  color: #000;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.75rem;
+}
+
+.nav-link:hover{
+  opacity: 0.6;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #072040;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover{
+  opacity: 0.6;
+}
+
+.session-status {
+  font-size: 1.25rem;
+  color: #F2887E;
+}
+
+  .main-content {
+    padding: 2rem;
+  }
+  
+  .randonnee-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  
+  .randonnee-info {
+    max-width: 50%;
+  }
+  
+  .randonnee-title {
+    font-size: 3rem;
+    margin: 0;
+  }
+  
+  .randonnee-address, .randonnee-description {
+    font-size: 2rem;
+    color: #000;
+  }
+  .randonnee-description {
+    font-size: 1.5rem;
+    color: #000;
+  }
+  
+  .note-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .note-label{
+    font-size: 1.5rem;
+    color: #F55126;
+    padding-top: 2.5rem;
+  }
+  
+  .star {
+    font-size: 2.5rem;
+    justify-content: center;
+    cursor: pointer;
+    color: #FFD700;
+  }
+  .error-message {
+    color: red;
+    margin-top: 0.5rem;
+  }
+  
+  .randonnee-image {
+    max-width: 45%;
+    text-align: center;
+  }
+  
+  .randonnee-photo {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .randonnee-popularite {
+    font-size: 1.5rem;
+    color: #FFD700;
+  }
+  

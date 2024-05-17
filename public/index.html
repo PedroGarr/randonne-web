@@ -3,20 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <title>Randonner</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="./styles/index.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Randonner</a>
-    <a href="/contribuer">Contribuer</a>
-    <a href="/connexion" id="connexion-link">Connexion</a>
-    <a href="/deconnexion" id="deconnexion-link" style="display: none;">Déconnexion</a>
+  
+  <nav class="navigation">
+    <div class="nav-items">
+      <a href="/" class="nav-link">Randonner</a>
+      <a href="/contribuer" class="nav-link">Contribuer</a>
+      <button class="nav-button" onclick="location.href='/connexion'" id="connexion-link">Login</button>
+      <button class="nav-button" onclick="location.href='/deconnexion'" id="deconnexion-link" style="display: none;">Logout</button>
+    </div>
+    <div id="session-status" class="session-status">Not Connected</div>
   </nav>
-  <h1>Liste des randonnées</h1>
-  <button id="sort-nom">Trier par nom</button>
-  <button id="sort-popularite">Trier par popularité</button>
-  <ul id="randonnees-list"></ul>
+  
+  <header class="header">
+    <h1 class="header-title">Choisissez votre nouvelle aventure</h1>
+  </header>
 
+  <main class="main-content">
+    <section class="sort-section">
+      <span class="sort-label">Trier par:</span>
+      <button id="sort-nom" class="sort-button">Nom</button>
+      <button id="sort-popularite" class="sort-button">Score</button>
+    </section>
+
+    <section class="randonnees-list" id="randonnees-list">
+      <!-- Randonnées will be loaded here -->
+    </section>
+  </main>
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const randonneesList = document.getElementById('randonnees-list');
@@ -24,6 +40,7 @@
       const sortPopulariteButton = document.getElementById('sort-popularite');
       const connexionLink = document.getElementById('connexion-link');
       const deconnexionLink = document.getElementById('deconnexion-link');
+      const sessionStatus = document.getElementById('session-status');
 
       function loadRandonnees(sortBy = 'nom') {
         fetch(`/api/randonnees?sort=${sortBy}`)
@@ -32,10 +49,14 @@
             randonneesList.innerHTML = '';
             randonnees.forEach(randonnee => {
               const li = document.createElement('li');
+              li.className = 'randonnee-item';
+              const fullStars = Math.floor(randonnee.popularite);
+              const emptyStars = 5 - fullStars;
+              const starsHtml = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
               li.innerHTML = `
-                <a href="/randonnee/${randonnee.id}">${randonnee.nom}</a>
-                <p>${randonnee.adresse}</p>
-                <div>${'★'.repeat(randonnee.popularite) + '☆'.repeat(5 - randonnee.popularite)}</div>
+                <a href="/randonnee/${randonnee.id}" class="randonnee-link">${randonnee.nom}</a>
+                <p class="randonnee-address">${randonnee.adresse}</p>
+                <div class="randonnee-rating">${starsHtml}</div>
               `;
               randonneesList.appendChild(li);
             });
@@ -47,16 +68,17 @@
 
       loadRandonnees();
 
-      // Vérifier l'état de la session pour afficher le lien approprié
       fetch('/api/session')
         .then(response => response.json())
-        .then(session => {
-          if (session.userId) {
+        .then(data => {
+          if (data.userIdentifiant) {
             connexionLink.style.display = 'none';
             deconnexionLink.style.display = 'inline';
+            sessionStatus.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
           } else {
             connexionLink.style.display = 'inline';
             deconnexionLink.style.display = 'none';
+            sessionStatus.textContent = 'Not Connected';
           }
         });
     });

@@ -1,10 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Chemin vers la base de données
 const dbPath = path.join(__dirname, 'database.db');
 
-// Création d'une nouvelle instance de base de données
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Erreur de connexion à la base de données:', err);
@@ -13,28 +11,25 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// Crée la table des utilisateurs si elle n'existe pas déjà
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS randonnees (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nom TEXT,
-      description TEXT,
-      adresse TEXT,
-      popularite INTEGER,
-      photo TEXT
-    )`);
+  db.run(`CREATE TABLE IF NOT EXISTS randonnees (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT,
+    description TEXT,
+    adresse TEXT,
+    popularite INTEGER,
+    initial_popularite INTEGER,
+    photo TEXT
+  )`);
 
-    db.run(`
-  CREATE TABLE IF NOT EXISTS notes (
+  db.run(`CREATE TABLE IF NOT EXISTS notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     randonnee_id INTEGER,
     utilisateur_id INTEGER,
     note INTEGER,
     FOREIGN KEY(randonnee_id) REFERENCES randonnees(id),
     FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id)
-  )
-`);
-
+  )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS utilisateurs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +43,5 @@ db.serialize(() => {
     }
   });
 });
-
 
 module.exports = db;

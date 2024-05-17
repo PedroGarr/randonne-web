@@ -4,24 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="./styles/connexion.css">
 </head>
 <body>
-    <h1>Connexion</h1>
-    <form id="connexionForm">
-        <label for="identifiant">Identifiant:</label>
-        <input type="text" id="identifiant" name="identifiant" required>
-        <br>
-        <label for="mot_de_passe">Mot de passe:</label>
-        <input type="password" id="mot_de_passe" name="mot_de_passe" required>
-        <br>
-        <label for="nouveau_utilisateur">Nouvel utilisateur:</label>
-        <input type="checkbox" id="nouveau_utilisateur" name="nouveau_utilisateur">
-        <br>
-        <button type="submit">Envoyer</button>
-    </form>
+    
+    <div class="login-container">
+        <h1>Connexion</h1>
+        <form id="connexionForm">
+            <div class="input-group">
+                <label for="identifiant">Identifiant</label>
+                <input type="text" id="identifiant" name="identifiant" required >
+            </div>
+            <div class="input-group">
+                <label for="mot_de_passe">Mot de passe</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required >
+            </div>
+            <div class="new-user">
+                <label for="nouveau_utilisateur">Nouvel utilisateur</label>
+                <input type="checkbox" id="nouveau_utilisateur" name="nouveau_utilisateur">
+            </div>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
     <p id="message"></p>
 
+
+    
     <script>
         document.getElementById('connexionForm').addEventListener('submit', async function(event) {
             event.preventDefault();

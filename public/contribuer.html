@@ -3,48 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <title>Contribuer une randonnée</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/contribuer.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Randonner</a>
-    <a href="/contribuer">Contribuer</a>
-    <span id="user-info"></span>
+  <nav class="navigation">
+    <div class="nav-items">
+      <a href="/" class="nav-link">Randonner</a>
+      <a href="/contribuer" class="nav-link">Contribuer</a>
+      <button class="nav-button" onclick="location.href='/connexion'" id="connexion-link">Login</button>
+      <button class="nav-button" onclick="location.href='/deconnexion'"id="deconnexion-link" style="display: none;">Logout</button>
+    </div>
+    <div id="session-status" class="session-status">Not Connected</div>
   </nav>
-  <h1>Contribuer une randonnée</h1>
-  <form action="/contribuer" method="POST">
-    <label for="nom">Nom :</label>
-    <input type="text" id="nom" name="nom" required><br>
-    <label for="description">Description :</label>
-    <textarea id="description" name="description" required></textarea><br>
-    <label for="adresse">Adresse :</label>
-    <input type="text" id="adresse" name="adresse" required><br>
-    <label for="popularite">Popularité initiale (1 à 5) :</label>
-    <select id="popularite" name="popularite" required>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select><br>
-    <label for="photo">URL de la photo :</label>
-    <input type="text" id="photo" name="photo" required><br>
-    <button type="submit">Soumettre</button>
-  </form>
+
+  <main class="main-content">
+    <h1 class="contribuer-title">Contribuer</h1>
+    <form action="/contribuer" method="POST" class="contribuer-form">
+      <div class="form-row">
+        <input type="text" id="nom" name="nom" placeholder="Nom de la randonnée" required class="form-input">
+        <input type="text" id="adresse" name="adresse" placeholder="Place de depart" required class="form-input">
+      </div>
+      <div class="form-row">
+        <div class="rating">
+
+          <input type="hidden" id="popularite" name="popularite" required>
+          <span class="star" data-value="1">☆</span>
+          <span class="star" data-value="2">☆</span>
+          <span class="star" data-value="3">☆</span>
+          <span class="star" data-value="4">☆</span>
+          <span class="star" data-value="5">☆</span>
+        </div>
+
+      </div>
+      <input type="text" id="photo" name="photo" placeholder="Url de la photo" required class="form-input">
+      <textarea id="description" name="description" placeholder="Description de la randonnée" required class="form-textarea"></textarea>
+      <button type="submit" class="form-button">Submit</button>
+    </form>
+  </main>
 
   <script>
-    // Vérifier la session utilisateur
+    document.addEventListener('DOMContentLoaded', function() {
+      const nomInput = document.getElementById('nom');
+      const adresseInput = document.getElementById('adresse');
+      const stars = document.querySelectorAll('.star');
+      const populariteInput = document.getElementById('popularite');
+
+      nomInput.addEventListener('input', function() {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+      });
+
+
+      stars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = this.getAttribute('data-value');
+          populariteInput.value = value;
+          stars.forEach(s => {
+            s.textContent = s.getAttribute('data-value') <= value ? '★' : '☆';
+          });
+        });
+      });
+    });
+
+
     fetch('/api/session')
-      .then(response => response.json())
-      .then(data => {
-        const userInfo = document.getElementById('user-info');
+     .then(response => response.json())
+     .then(data => {
+        const sessionStatus = document.getElementById('session-status');
+        const connexionLink = document.getElementById('connexion-link');
+        const deconnexionLink = document.getElementById('deconnexion-link');
+
         if (data.userIdentifiant) {
-          userInfo.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
+          connexionLink.style.display = 'none';
+          deconnexionLink.style.display = 'inline';
+          sessionStatus.textContent = `Connecté en tant que: ${data.userIdentifiant}`;
         } else {
-          window.location.href = '/connexion';
+          connexionLink.style.display = 'inline';
+          deconnexionLink.style.display = 'none';
+          sessionStatus.innerHTML = 'Not Connected'; 
         }
       });
-      
   </script>
 </body>
 </html>
